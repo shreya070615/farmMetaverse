@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AgriVerse Village</title>
+<style>
+  body { margin: 0; overflow: hidden; }
+  #info {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 10px;
+    font-family: Arial;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div id="info">🌾 AgriVerse Digital Twin Village</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+/* SCENE */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87ceeb);
+
+/* CAMERA */
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(20, 15, 20);
+
+/* RENDERER */
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+/* CONTROLS */
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.update();
+
+/* LIGHTS */
+scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+const sun = new THREE.DirectionalLight(0xffffff, 1);
+sun.position.set(20, 40, 20);
+scene.add(sun);
+
+/* GROUND */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({ color: 0x4caf50 })
+);
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+/* LOADER */
+const loader = new THREE.GLTFLoader();
+
+function loadModel(path, x, z, scale = 1) {
+  loader.load(
+    path,
+    gltf => {
+      const model = gltf.scene;
+      model.position.set(x, 0, z);
+      model.scale.set(scale, scale, scale);
+      scene.add(model);
+    },
+    undefined,
+    err => console.error("❌ Error loading", path, err)
+  );
+}
+
+/* LOAD MODELS */
+loadModel("models/farmhouse.glb", -10, 0, 2);
+loadModel("models/farmer.glb", 0, 0, 1.5);
+loadModel("models/cow.glb", 4, -4, 1.2);
+loadModel("models/tractor.glb", 10, -5, 1.5);
+loadModel("models/crops.glb", 0, -10, 2);
+loadModel("models/soil.glb", 0, -12, 2);
+loadModel("models/farm.glb", 12, 6, 2);
+
+/* ANIMATE */
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+animate();
+
+/* RESIZE */
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+
+</body>
+</html>
